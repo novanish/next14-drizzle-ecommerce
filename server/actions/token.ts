@@ -6,6 +6,7 @@ import { db } from "..";
 import {
   emailVerificationTokens,
   passwordResetTokens,
+  twoFactorTokens,
   users,
 } from "@/server/schema";
 
@@ -65,6 +66,25 @@ export async function verifyEmailVerificationToken(token: string) {
   return null;
 }
 
+export async function verfiyTwoFactorToken(token: string) {
+  const now = new Date();
+  const twoFactorToken = await db.query.twoFactorTokens.findFirst({
+    where: eq(twoFactorTokens.token, token),
+  });
+
+  if (!twoFactorToken) {
+    return { error: "Invalid token" };
+  }
+
+  await db.delete(twoFactorTokens).where(eq(twoFactorTokens.token, token));
+
+  if (twoFactorToken.expires < now) {
+    return { error: "Token expired" };
+  }
+
+  return null;
+}
+
 export async function generateForgotPasswordVerificationToken(userId: string) {
   const token = crypto.randomBytes(64).toString("hex");
   const hashedToken = await hashToken(token);
@@ -85,6 +105,30 @@ export async function generateForgotPasswordVerificationToken(userId: string) {
     });
 
   return token;
+}
+
+export async function generateOTPForTwoFactor(userId: string) {
+  const otp = generateOTP();
+
+  await db
+    .insert(twoFactorTokens)
+    .values({ userId, token: otp, expires: sql`NOW() + INTERVAL '7 MINUTES'` })
+    .onConflictDoUpdate({
+      target: twoFactorTokens.userId,
+      set: {
+        token: otp,
+        expires: sql.raw(`EXCLUDED.${twoFactorTokens.expires.name}`),
+      },
+    });
+
+  return otp;
+}
+
+function generateOTP(length = 6) {
+  return crypto
+    .randomInt(0, 10 ** length)
+    .toString()
+    .padStart(length, "0");
 }
 
 export async function hashToken(token: string) {
