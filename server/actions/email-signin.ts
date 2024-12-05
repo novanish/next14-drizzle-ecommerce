@@ -6,7 +6,11 @@ import { eq } from "drizzle-orm";
 import { createSafeActionClient } from "next-safe-action";
 import { db } from "..";
 import { users } from "@/server/schema";
-import { generateEmailVerificationToken } from "./token";
+import {
+  generateEmailVerificationToken,
+  generateOTPForTwoFactor,
+  verfiyTwoFactorToken,
+} from "./token";
 import { signIn } from "@/server/auth";
 
 const actionClient = createSafeActionClient();
@@ -15,7 +19,12 @@ export const emailSignIn = actionClient
   .schema(loginSchema)
   .action(async ({ parsedInput }) => {
     const user = await db.query.users.findFirst({
-      columns: { id: true, password: true, emailVerified: true },
+      columns: {
+        id: true,
+        password: true,
+        emailVerified: true,
+        twoFactorEnabled: true,
+      },
       where: eq(users.email, parsedInput.email),
     });
     if (!user) {
@@ -35,6 +44,19 @@ export const emailSignIn = actionClient
       // await sendVerificationEmail(parsedInput.email, token);
       console.log(token);
       return { error: "Please verify your email" };
+    }
+
+    if (!parsedInput.code && user.twoFactorEnabled) {
+      const token = await generateOTPForTwoFactor(user.id);
+      // send two factor code to user email
+      console.log(token);
+
+      return { showTwoFactor: true };
+    }
+
+    if (parsedInput.code && user.twoFactorEnabled) {
+      const isValidToken = await verfiyTwoFactorToken(parsedInput.code);
+      if (isValidToken != null) return isValidToken;
     }
 
     await signIn("credentials", {
