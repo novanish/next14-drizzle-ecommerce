@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,38 +11,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { SignOut } from "./sign-out-";
 import { ThemeSwitch } from "./theme-switch";
+import UserAvatar from "./user-avatar";
 
 interface Props {
   session: Session;
 }
 
 export function UserButton({ session: { user } }: Props) {
-  const fallback =
-    user?.name
-      ?.split(" ")
-      .map((n) => n[0].toUpperCase())
-      .join("") ?? "NE";
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <Avatar className="h-9 w-9">
-          {user?.image ? (
-            <AvatarImage
-              src={user.image}
-              alt={user?.name || "User Avatar"}
-              asChild
-            >
-              <Image
-                src={user.image}
-                alt={user?.name || "User Avatar"}
-                width={28}
-                height={28}
-              />
-            </AvatarImage>
-          ) : null}
-          <AvatarFallback>{fallback}</AvatarFallback>
-        </Avatar>
+        <UserAvatar image={user?.image} name={user?.name} />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64 p-6" align="end">
         <div className="mb-4 p-4 flex flex-col gap-1 items-center rounded-lg  bg-primary/10">
