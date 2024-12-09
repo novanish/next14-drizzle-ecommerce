@@ -12,6 +12,7 @@ import { Placeholder } from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Bold, Italic, List, ListOrdered, Strikethrough } from "lucide-react";
+import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 
 interface Props
@@ -58,8 +59,14 @@ export function Tiptap(props: Props) {
           "min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
       },
     },
-    content: `${props.value}`,
+    content: props.value?.toString() ?? "",
   });
+
+  useEffect(() => {
+    if (editor?.isEmpty) {
+      editor.commands.setContent(props.value?.toString() ?? "");
+    }
+  }, [props.value, editor]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -133,8 +140,6 @@ interface ToggleToolTipProps {
 }
 
 function ToggleWithToolTip({ toogleProps, content }: ToggleToolTipProps) {
-  console.log(toogleProps);
-
   return (
     <TooltipProvider>
       <Tooltip>
