@@ -5,6 +5,7 @@ import { createSafeActionClient } from "next-safe-action";
 import { db } from "..";
 import { auth } from "../auth";
 import { products } from "../schema";
+import { eq } from "drizzle-orm";
 
 const actionClient = createSafeActionClient();
 
@@ -17,9 +18,22 @@ export const createProduct = actionClient
       return { error: "Unauthorized" };
     }
 
-    await db.insert(products).values({
-      title: parsedInput.title,
-      description: parsedInput.description,
-      price: parsedInput.price,
-    });
+    if (!parsedInput.id) {
+      await db.insert(products).values({
+        title: parsedInput.title,
+        description: parsedInput.description,
+        price: parsedInput.price,
+      });
+
+      return;
+    }
+
+    await db
+      .update(products)
+      .set({
+        title: parsedInput.title,
+        description: parsedInput.description,
+        price: parsedInput.price,
+      })
+      .where(eq(products.id, parsedInput.id));
   });
