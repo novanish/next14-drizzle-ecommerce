@@ -17,23 +17,39 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { createProduct } from "@/server/actions/create-product";
+import { getProduct } from "@/server/actions/get-product";
 import { productSchema, ProductSchema } from "@/types/product-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DollarSign } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { Tiptap } from "./tiptap";
-import { useAction } from "next-safe-action/hooks";
-import { createProduct } from "@/server/actions/create-product";
-import { useRouter } from "next/navigation";
 
 export function ProductForm() {
+  const searchParams = useSearchParams();
+  const hasProductId = searchParams.has("id");
+  const defaultValues = {
+    title: "",
+    description: "",
+    price: 0,
+  };
+  console.log(hasProductId, "hasProductId");
+
   const form = useForm<ProductSchema>({
     resolver: zodResolver(productSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      price: 0,
-    },
+    defaultValues: hasProductId
+      ? async () => {
+          const id = searchParams.get("id")!;
+          const product = await getProduct(id);
+          if (!product) {
+            return defaultValues;
+          }
+          console.log(product, "product");
+          return { ...product, id };
+        }
+      : defaultValues,
   });
   const router = useRouter();
 
@@ -50,8 +66,14 @@ export function ProductForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-primary">Add Product</CardTitle>
-        <CardDescription>Add a new product to the store</CardDescription>
+        <CardTitle className="text-primary">
+          {hasProductId ? "Edit Product" : "Add Product"}
+        </CardTitle>
+        <CardDescription>
+          {hasProductId
+            ? "Edit the product details below"
+            : "Add a new product to your store"}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -110,7 +132,7 @@ export function ProductForm() {
             />
 
             <Button className="w-full" type="submit" disabled={isPending}>
-              Add Product
+              {hasProductId ? "Save Changes" : "Add Product"}
             </Button>
           </form>
         </Form>
