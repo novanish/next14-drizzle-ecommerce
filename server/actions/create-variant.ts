@@ -1,0 +1,46 @@
+"use server";
+
+import { variantSchema } from "@/types/variant-schema";
+import { createSafeActionClient } from "next-safe-action";
+import { db } from "..";
+import { auth } from "../auth";
+import { productVariants, variantImages, variantTags } from "../schema";
+
+const actionClient = createSafeActionClient();
+
+export const createVariant = actionClient
+  .schema(variantSchema)
+  .action(async ({ parsedInput }) => {
+    const session = await auth();
+    const isAdmin = session?.user.role === "ADMIN";
+    if (!isAdmin) {
+      return { error: "Unauthorized" };
+    }
+
+    const [newVariant] = await db
+      .insert(productVariants)
+      .values({
+        color: parsedInput.color,
+        productType: parsedInput.productType,
+        productId: parsedInput.productId,
+      })
+      .returning({ id: productVariants.id });
+
+    const images = parsedInput.images.map((image, index) => ({
+      variantId: newVariant.id,
+      url: image.url,
+      size: image.size,
+      name: image.name,
+      order: index,
+    }));
+
+    const tags = parsedInput.tags.map((tag) => ({
+      variantId: newVariant.id,
+      tag,
+    }));
+
+    await Promise.all([
+      db.insert(variantImages).values(images),
+      db.insert(variantTags).values(tags),
+    ]);
+  });
