@@ -7,6 +7,7 @@ import { z } from "zod";
 import { db } from "..";
 import { auth } from "../auth";
 import { productVariants } from "../schema";
+import { algoliaClient } from "./create-variant";
 
 const actionClient = createSafeActionClient();
 
@@ -23,8 +24,13 @@ export const deleteVariant = actionClient
       return { error: "Unauthorized" };
     }
 
-    await db
-      .delete(productVariants)
-      .where(eq(productVariants.id, parsedInput.id));
+    await Promise.all([
+      db.delete(productVariants).where(eq(productVariants.id, parsedInput.id)),
+      algoliaClient.deleteObject({
+        indexName: "products",
+        objectID: parsedInput.id.toString(),
+      }),
+    ]);
+
     revalidatePath("/dashboard/products");
   });
