@@ -6,6 +6,7 @@ import { db } from "..";
 import { auth } from "../auth";
 import { productVariants, variantImages, variantTags } from "../schema";
 import { algoliasearch } from "algoliasearch";
+import { revalidatePath } from "next/cache";
 
 const actionClient = createSafeActionClient();
 
