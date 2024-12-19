@@ -7,7 +7,7 @@ import { z } from "zod";
 import { db } from "..";
 import { auth } from "../auth";
 import { productVariants } from "../schema";
-import { algoliaClient } from "./create-variant";
+import { algoliaClient } from "../algoliaClient";
 
 const actionClient = createSafeActionClient();
 

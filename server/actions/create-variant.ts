@@ -5,23 +5,10 @@ import { createSafeActionClient } from "next-safe-action";
 import { db } from "..";
 import { auth } from "../auth";
 import { productVariants, variantImages, variantTags } from "../schema";
-import { algoliasearch } from "algoliasearch";
 import { revalidatePath } from "next/cache";
+import { algoliaClient } from "../algoliaClient";
 
 const actionClient = createSafeActionClient();
-
-if (!process.env.NEXT_PUBLIC_ALGOLIA_APP_ID) {
-  throw new Error("NEXT_PUBLIC_ALGOLIA_APP_ID is not defined");
-}
-
-if (!process.env.ALGOLIA_ADMIN_API_KEY) {
-  throw new Error("ALGOLIA_ADMIN_API_KEY is not defined");
-}
-
-export const algoliaClient = algoliasearch(
-  process.env.NEXT_PUBLIC_ALGOLIA_APP_ID,
-  process.env.ALGOLIA_ADMIN_API_KEY
-);
 
 export const createVariant = actionClient
   .schema(variantSchema)
