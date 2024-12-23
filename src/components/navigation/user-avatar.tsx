@@ -2,8 +2,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 
 interface Props {
-  image?: string;
-  name?: string;
+  image?: string | null;
+  name?: string | null;
 }
 
 export default function UserAvatar({ image, name = "F" }: Props) {
