@@ -1,7 +1,7 @@
 import * as z from "zod";
 
 export const reviewSchema = z.object({
-  productId: z.number(),
+  productId: z.string(),
   rating: z
     .number()
     .min(1, "Rating must be between 1 and 5")
