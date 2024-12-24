@@ -30,7 +30,7 @@ export function Products({ variants }: Props) {
         <Link
           className="py-2"
           key={variant.id}
-          href={`/products/${variant.id}?id=${variant.id}&productID=${variant.productId}&price=${variant.product.price}&title=${variant.product.title}&type=${variant.productType}&image=${variant.images[0].url}`}
+          href={`/products/${variant.productId}`}
         >
           <Image
             className="rounded-md pb-2"
