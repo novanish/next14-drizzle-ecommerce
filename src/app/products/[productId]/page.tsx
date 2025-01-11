@@ -1,3 +1,4 @@
+import { AddToCart } from "@/components/cart/add-to-cart";
 import ProductPick from "@/components/products/product-pick";
 import { ProductShowcase } from "@/components/products/product-showcase";
 import ProductType from "@/components/products/product-type";
@@ -70,6 +71,13 @@ export default async function Page(props: Props) {
               />
             ))}
           </div>
+
+          <AddToCart
+            productTitle={product.title}
+            price={product.price}
+            productId={productId}
+            variants={product.variants}
+          />
         </div>
       </section>
 
