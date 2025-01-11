@@ -1,9 +1,10 @@
-import { auth } from "@/server/auth";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/server/auth";
 import { LogIn } from "lucide-react";
+import Link from "next/link";
+import { CartDrawer } from "../cart/drawer";
 import { Logo } from "./logo";
 import { UserButton } from "./user-button";
-import Link from "next/link";
 
 export async function Nav() {
   const session = await auth();
@@ -16,6 +17,10 @@ export async function Nav() {
             <Link href="/" aria-label="Ecommerce logo">
               <Logo />
             </Link>
+          </li>
+
+          <li className="relative flex items-center hover:bg-muted">
+            <CartDrawer />
           </li>
 
           {!session ? (
