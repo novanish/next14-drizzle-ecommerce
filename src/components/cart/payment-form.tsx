@@ -72,7 +72,7 @@ export function PaymentForm({ totalPrice }: Props) {
     const url = new URL(window.location.href);
     url.pathname = "/success";
 
-    const { error } = await stripe.confirmPayment({
+    const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
       clientSecret: data.success.clientSecretId!,
       redirect: "if_required",
@@ -92,6 +92,7 @@ export function PaymentForm({ totalPrice }: Props) {
 
     await executeAsync({
       amount: totalPrice,
+      paymentIntentId: paymentIntent.id,
       products: cart.map((p) => ({
         productId: p.id,
         variantId: Number(p.variant.id),
