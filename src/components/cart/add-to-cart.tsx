@@ -22,7 +22,7 @@ export function AddToCart({ price, productId, variants, productTitle }: Props) {
   const [quantity, setQuantity] = useState(1);
   const variant = variants[0];
   const params = useSearchParams();
-  const id = params.get("id") || variant.id.toString();
+  const id = Number(params.get("id")) || variant.id;
   const type = params.get("type") || variant.productType;
   const image = params.get("image") || variant.images[0].url;
 
