@@ -24,10 +24,15 @@ export async function Earnings({ filter = "week" }: Props) {
     ? await getThisWeekSummary()
     : await getThisMonthSummary();
 
+  const totalSales = summary.reduce(
+    (acc, { totalSales }) => acc + totalSales,
+    0
+  );
+
   return (
     <Card className="flex-1 shrink-0 h-full">
       <CardHeader>
-        <CardTitle>Your Revenue: {formatPrice(1000)}</CardTitle>
+        <CardTitle>Your Revenue: {formatPrice(totalSales)}</CardTitle>
         <CardDescription>Here are your recent earnings</CardDescription>
         <div className="flex items-center gap-2 pb-4">
           <FilterBadage filter="week" isActive={isWeek} label="This Week" />

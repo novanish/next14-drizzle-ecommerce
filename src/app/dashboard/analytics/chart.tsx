@@ -27,7 +27,7 @@ export function Chart({ summary }: Props) {
                     className="bg-primary text-white py-2 px-4 rounded-md shadow-lg"
                     key={item.payload.date}
                   >
-                    <p>Revenue: ${formatPrice(item.payload.totalSales)}</p>
+                    <p>Revenue: {formatPrice(item.payload.totalSales)}</p>
                     <p>Date: {item.payload.date}</p>
                   </div>
                 );
