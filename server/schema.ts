@@ -192,3 +192,71 @@ export const reviewRelations = relations(reviews, ({ one }) => ({
     references: [products.id],
   }),
 }));
+
+export const StatusEnum = pgEnum("order_status", [
+  "PENDING",
+  "PAID",
+  "SHIPPED",
+  "DELIVERED",
+]);
+
+export const orders = pgTable("orders", {
+  id: text("id")
+    .primaryKey()
+    .notNull()
+    .$defaultFn(() => createId()),
+  paymentIntentId: text("payment_intent_id"),
+
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  status: StatusEnum("order_status").notNull().default("PENDING"),
+  reciptURL: text("recipt_url"),
+  total: real("total").notNull(),
+
+  createdAt: timestamp("createdAt", { mode: "date" })
+    .default(sql.raw("CURRENT_TIMESTAMP"))
+    .notNull(),
+});
+
+export const orderProducts = pgTable("order_products", {
+  orderId: text("order_id")
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade" }),
+  variantId: integer("variant_id")
+    .notNull()
+    .references(() => productVariants.id, { onDelete: "cascade" }),
+  productId: text("product_id"),
+  quantity: integer("quantity").notNull(),
+  price: real("price").notNull(),
+});
+
+export const userRelations = relations(users, ({ many }) => ({
+  orders: many(orders),
+}));
+
+export const orderRelations = relations(orders, ({ one, many }) => ({
+  user: one(users, {
+    fields: [orders.userId],
+    references: [users.id],
+  }),
+
+  products: many(orderProducts),
+}));
+
+export const orderProductRelations = relations(orderProducts, ({ one }) => ({
+  order: one(orders, {
+    fields: [orderProducts.orderId],
+    references: [orders.id],
+  }),
+
+  variant: one(productVariants, {
+    fields: [orderProducts.variantId],
+    references: [productVariants.id],
+  }),
+
+  product: one(products, {
+    fields: [orderProducts.productId],
+    references: [products.id],
+  }),
+}));
