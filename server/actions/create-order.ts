@@ -43,6 +43,7 @@ export const createOrder = actionClient
         .values({
           userId: session.user.id,
           total: totalPrice,
+          paymentIntentId: parsedInput.paymentIntentId,
         })
         .returning({ id: orders.id });
 
