@@ -16,9 +16,9 @@ export function Products({ variants }: Props) {
   const paramTag = params.get("tag");
 
   const filtered = useMemo(() => {
-    if (paramTag && variants) {
+    if (paramTag && paramTag !== "all" && variants) {
       return variants.filter((variant) =>
-        variant.tags.some((tag) => tag.tag === paramTag)
+        variant.tags.some((tag) => tag.tag.toLowerCase() === paramTag)
       );
     }
     return variants;
